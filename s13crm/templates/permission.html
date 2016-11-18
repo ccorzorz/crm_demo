@@ -1,0 +1,104 @@
+{% extends 'layout/_layout.html' %}
+
+{% block  content %}
+
+    <div style="float: left;width: 300px">
+        <ul id="pers_tree" ></ul>
+        <!-- <ul id="tt" class="easyui-tree" data-options="url:'/get_permission_tree/',method:'get',animate:true"></ul> -->
+    </div>
+
+    <div style="float: left;width: 600px">
+         <table id="dg"></table>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function(){
+            InitTree();
+        });
+
+        function InitTree(){
+            $('#pers_tree').tree({
+                url: '/get_permission_tree/',
+                method: 'get',
+                animate: true,
+                onClick: function(node){
+					console.log(node.text,node.id);
+                    InitTable(node.id);
+                    InitPagination();
+				}
+            })
+        }
+
+        function InitTable(node_parent_id){
+            $('#dg').datagrid({
+                title: '听不下去了',
+                url: '/get_child_permission/',
+                method: 'get',
+                queryParams: {
+                    node_parent_id: node_parent_id
+                },
+                columns: [[
+                    {
+                        field: 'ck',
+                        checkbox: true
+                    },
+                    {
+                        field: 'caption',
+                        title: '标题',
+                        width: 180,
+                        align: 'center'
+                    },
+                    {
+                        field: 'code',
+                        title: 'URL',
+                        width: 180,
+                        align: 'center'
+                    }
+
+                ]],
+                toolbar: [
+                    {
+                        text: '添加',
+                        iconCls: 'icon-add',
+                        handler: AddRow
+                    }, {
+                        text: '删除',
+                        iconCls: 'icon-remove',
+                        handler: RemoveRow
+                    }, {
+                        text: '修改',
+                        iconCls: 'icon-edit',
+                        handler: EditRow
+                    }
+                ],
+                pagePosition: 'both',
+                pagination: true,
+                pageSize: 10,
+                pageNumber: 1,
+                pageList: [10, 20, 50]
+            })
+        }
+
+        function AddRow(){
+            console.log('addrow');
+        }
+        function RemoveRow(){
+            console.log('RemoveRow');
+        }
+        function EditRow(){
+            console.log('EditRow');
+        }
+
+        function InitPagination() {
+            var pager = $('#dg').datagrid('getPager');
+            $(pager).pagination({
+                beforePageText: '第',
+                afterPageText: '页 共{pages}页',
+                displayMsg: '当前显示{from}-{to}条记录 共{total}条数据'
+            })
+        }
+    </script>
+{% endblock %}
